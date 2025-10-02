@@ -1,0 +1,30 @@
+{
+  "name": "aboleon/metaframework-mailer",
+  "description": "Mailer infrastructure components for MetaFramework applications",
+  "version": "0.1.0",
+  "type": "library",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.3",
+    "illuminate/support": "^12.0",
+    "illuminate/mail": "^12.0",
+    "illuminate/routing": "^12.0",
+    "illuminate/console": "^12.0",
+    "illuminate/filesystem": "^12.0",
+    "illuminate/translation": "^12.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "MetaFramework\\Mail\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "MetaFramework\\Mail\\MailerServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

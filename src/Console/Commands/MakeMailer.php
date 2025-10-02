@@ -1,0 +1,218 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MetaFramework\Mail\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
+
+final class MakeMailer extends Command
+{
+    protected $signature = 'app:make-mailer
+        {name : The mailer class name (e.g. TransportManagementAdminRequest or Admin/Notification)}
+        {--view= : Override the generated Blade view name}
+        {--force : Overwrite existing files if they already exist}
+        {--translations : Generate translation stubs for this mailer}';
+
+    protected $description = 'Generate a mailer class extending MailerAbstract along with a Blade view skeleton.';
+
+    public function __construct(private readonly Filesystem $files)
+    {
+        parent::__construct();
+    }
+
+    public function handle(): int
+    {
+        $nameInput = (string) $this->argument('name');
+
+        $normalized = str_replace('\\', '/', trim($nameInput, " \/"));
+        $segments = array_values(array_filter(array_map(
+            static fn(string $segment): string => Str::studly($segment),
+            explode('/', $normalized)
+        )));
+
+        if ($segments === []) {
+            $this->error('The mailer name must contain at least one segment.');
+
+            return self::FAILURE;
+        }
+
+        $className = array_pop($segments);
+        $baseNamespace = rtrim(config('metaframework.mailer.namespaces.default', 'App\\Mailer'), '\\');
+        $relativeNamespace = $segments !== [] ? '\\' . implode('\\', $segments) : '';
+        $namespace = $baseNamespace . $relativeNamespace;
+        $relativeDirectory = $segments !== [] ? DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $segments) : '';
+        $targetDirectory = app_path('Mailer' . $relativeDirectory);
+        $this->files->ensureDirectoryExists($targetDirectory);
+
+        $classPath = $targetDirectory . DIRECTORY_SEPARATOR . $className . '.php';
+
+        if ($this->fileExistsAndNotForced($classPath)) {
+            $this->warn(sprintf('Mailer already exists at %s', $this->relativePath($classPath)));
+
+            return self::FAILURE;
+        }
+
+        $viewName = $this->resolveViewName($segments, $className);
+        $viewPath = resource_path('views/' . str_replace('.', DIRECTORY_SEPARATOR, $viewName) . '.blade.php');
+        $this->files->ensureDirectoryExists(dirname($viewPath));
+
+        if ($this->fileExistsAndNotForced($viewPath)) {
+            $this->warn(sprintf('View already exists at %s', $this->relativePath($viewPath)));
+
+            return self::FAILURE;
+        }
+
+        $this->files->put($classPath, $this->buildClassContents($namespace, $className, $viewName));
+        $this->files->put($viewPath, $this->buildViewContents($viewName));
+
+        if ($this->option('translations')) {
+            $this->generateTranslationStubs($viewName);
+        }
+
+        $this->info(sprintf('Mailer created: %s', $this->relativePath($classPath)));
+        $this->info(sprintf('View created: %s', $this->relativePath($viewPath)));
+
+        return self::SUCCESS;
+    }
+
+    private function resolveViewName(array $namespaceSegments, string $className): string
+    {
+        $viewOption = $this->option('view');
+        if (is_string($viewOption) && $viewOption !== '') {
+            return $viewOption;
+        }
+
+        $segments = array_map(static fn(string $segment): string => Str::kebab($segment), $namespaceSegments);
+        $segments[] = Str::kebab($className);
+
+        $prefix = config('metaframework.mailer.views.prefix', 'mails.mailer');
+
+        return rtrim($prefix, '.').'.'.implode('.', $segments);
+    }
+
+    private function buildClassContents(string $namespace, string $className, string $viewName): string
+    {
+        $subjectPlaceholder = var_export('TODO: replace with mail subject', true);
+        $emailPlaceholder = var_export('example@example.com', true);
+
+        $template = <<<'PHP'
+<?php
+
+declare(strict_types=1);
+
+namespace __NAMESPACE__;
+
+use MetaFramework\Mail\Mailer\MailerAbstract;
+use App\Mail\Traits\MailCommonsTrait;
+
+final class __CLASS__ extends MailerAbstract
+{
+    use MailCommonsTrait;
+
+    public array $data = [];
+
+    public function setData(): self
+    {
+        // TODO: Populate view data for this mailer.
+
+        return $this;
+    }
+
+    public function email(): string|array
+    {
+        // TODO: Determine the recipient address or array of addresses.
+
+        return __EMAIL__;
+    }
+
+    public function subject(): string
+    {
+        return __SUBJECT__;
+    }
+
+    public function view(): string
+    {
+        return __VIEW__;
+    }
+}
+
+PHP;
+
+        return str_replace(
+            ['__NAMESPACE__', '__CLASS__', '__EMAIL__', '__SUBJECT__', '__VIEW__'],
+            [$namespace, $className, $emailPlaceholder, $subjectPlaceholder, var_export($viewName, true)],
+            $template,
+        );
+    }
+
+    private function buildViewContents(string $viewName): string
+    {
+        $titleComment = sprintf('Generated by app:make-mailer for view "%s"', $viewName);
+
+        $template = <<<'BLADE'
+{{-- __TITLE__ --}}
+<x-mail-layout>
+    {{-- TODO: Add mail content. --}}
+</x-mail-layout>
+
+BLADE;
+
+        return str_replace('__TITLE__', $titleComment, $template);
+    }
+
+    private function fileExistsAndNotForced(string $path): bool
+    {
+        return $this->files->exists($path) && ! (bool) $this->option('force');
+    }
+
+    private function relativePath(string $path): string
+    {
+        return Str::after($path, base_path() . DIRECTORY_SEPARATOR);
+    }
+
+    private function generateTranslationStubs(string $viewName): void
+    {
+        $locales = (array) config('mfw.translatable.locales', []);
+
+        if ($locales === []) {
+            return;
+        }
+
+        $baseSegments = explode('.', $viewName);
+
+        if (array_shift($baseSegments) !== 'mails') {
+            return;
+        }
+
+        $filename = end($baseSegments);
+
+        foreach ($locales as $locale) {
+            $directory = base_path('lang' . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . 'mailer');
+            $this->files->ensureDirectoryExists($directory);
+
+            $path = $directory . DIRECTORY_SEPARATOR . $filename . '.php';
+
+            if ($this->fileExistsAndNotForced($path)) {
+                $this->info(sprintf('Translation skipped (exists): %s', $this->relativePath($path)));
+                continue;
+            }
+
+            $content = <<<PHP
+<?php
+
+return [
+    'subject' => 'TODO: translation for subject',
+    'intro' => 'TODO: introduction text',
+];
+
+PHP;
+
+            $this->files->put($path, $content);
+
+            $this->info(sprintf('Translation created: %s', $this->relativePath($path)));
+        }
+    }
+}
