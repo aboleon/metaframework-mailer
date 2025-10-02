@@ -11,17 +11,18 @@
     "illuminate/routing": "^12.0",
     "illuminate/console": "^12.0",
     "illuminate/filesystem": "^12.0",
-    "illuminate/translation": "^12.0"
+    "illuminate/translation": "^12.0",
+    "aboleon/metaframework-support": "^0.1"
   },
   "autoload": {
     "psr-4": {
-      "MetaFramework\\Mail\\": "src/"
+      "MetaFramework\\Mailer\\": "src/"
     }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "MetaFramework\\Mail\\MailerServiceProvider"
+        "MetaFramework\\Mailer\\MailerServiceProvider"
       ]
     }
   },

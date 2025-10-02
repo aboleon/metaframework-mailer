@@ -3,10 +3,11 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use MetaFramework\Mail\Http\Controllers\MailController;
+use MetaFramework\Mailer\Http\Controllers\MailController;
 
-Route::middleware(config('metaframework.mailer.routes.middleware', ['web']))
-    ->name(config('metaframework.mailer.routes.name', 'mailer'))
+Route::middleware(config('mfw.mailer.routes.middleware', ['web']))
+    ->name(config('mfw.mailer.routes.name', 'mailer'))
     ->any(
-        config('metaframework.mailer.routes.uri', 'mail/{type}/{identifier}')
-    , [MailController::class, 'distribute']);
+        config('mfw.mailer.routes.uri', 'mail/{type}/{identifier}'),
+        [MailController::class, 'distribute']
+    );

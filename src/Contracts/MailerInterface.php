@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MetaFramework\Mail\Contracts;
+namespace MetaFramework\Mailer\Contracts;
 
 interface MailerInterface
 {

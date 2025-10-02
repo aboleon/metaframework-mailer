@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MetaFramework\Mail\Http\Controllers;
+namespace MetaFramework\Mailer\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
-use MetaFramework\Mail\Contracts\MailerInterface;
+use MetaFramework\Mailer\Contracts\MailerInterface;
 use MetaFramework\Support\Traits\Ajax;
 use MetaFramework\Support\Traits\Responses;
 use ReflectionClass;
@@ -116,7 +116,7 @@ class MailController extends Controller
     {
         $candidates = [$type];
 
-        $defaultNamespace = rtrim(config('metaframework.mailer.namespaces.default', 'App\\Mailer'), '\\');
+        $defaultNamespace = rtrim(config('mfw.mailer.namespaces.default', 'App\\Mailer'), '\\');
         $candidates[] = $defaultNamespace.'\\'.ucfirst($type);
 
         foreach ($candidates as $candidate) {

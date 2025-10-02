@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MetaFramework\Mail\Console\Commands;
+namespace MetaFramework\Mailer\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
@@ -40,7 +40,7 @@ final class MakeMailer extends Command
         }
 
         $className = array_pop($segments);
-        $baseNamespace = rtrim(config('metaframework.mailer.namespaces.default', 'App\\Mailer'), '\\');
+        $baseNamespace = rtrim(config('mfw.mailer.namespaces.default', 'App\\Mailer'), '\\');
         $relativeNamespace = $segments !== [] ? '\\' . implode('\\', $segments) : '';
         $namespace = $baseNamespace . $relativeNamespace;
         $relativeDirectory = $segments !== [] ? DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $segments) : '';
@@ -88,7 +88,7 @@ final class MakeMailer extends Command
         $segments = array_map(static fn(string $segment): string => Str::kebab($segment), $namespaceSegments);
         $segments[] = Str::kebab($className);
 
-        $prefix = config('metaframework.mailer.views.prefix', 'mails.mailer');
+        $prefix = config('mfw.mailer.views.prefix', 'mails.mailer');
 
         return rtrim($prefix, '.').'.'.implode('.', $segments);
     }
@@ -105,7 +105,7 @@ declare(strict_types=1);
 
 namespace __NAMESPACE__;
 
-use MetaFramework\Mail\Mailer\MailerAbstract;
+use MetaFramework\Mailer\Mailer\MailerAbstract;
 use App\Mail\Traits\MailCommonsTrait;
 
 final class __CLASS__ extends MailerAbstract

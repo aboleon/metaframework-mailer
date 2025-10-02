@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace MetaFramework\Mail;
+namespace MetaFramework\Mailer;
 
 use Illuminate\Support\ServiceProvider;
-use MetaFramework\Mail\Console\Commands\MakeMailer;
+use MetaFramework\Mailer\Console\Commands\MakeMailer;
 
 class MailerServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/mailer.php', 'metaframework.mailer');
+        $this->mergeConfigFrom(__DIR__.'/../config/mailer.php', 'mfw.mailer');
     }
 
     public function boot(): void
@@ -19,7 +19,7 @@ class MailerServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'mfw-mailer');
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'mfw-mailer');
 
-        if (config('metaframework.mailer.routes.enabled', false)) {
+        if (config('mfw.mailer.routes.enabled', false)) {
             $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         }
 
@@ -27,7 +27,7 @@ class MailerServiceProvider extends ServiceProvider
             $this->commands([MakeMailer::class]);
 
             $this->publishes([
-                __DIR__.'/../config/mailer.php' => config_path('metaframework/mailer.php'),
+                __DIR__.'/../config/mailer.php' => config_path('mfw/mailer.php'),
             ], 'mfw-mailer-config');
 
             $this->publishes([

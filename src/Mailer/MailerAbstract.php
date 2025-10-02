@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MetaFramework\Mail\Mailer;
+namespace MetaFramework\Mailer\Mailer;
 
 use Illuminate\Support\Facades\Mail;
-use MetaFramework\Mail\Contracts\MailerInterface;
-use MetaFramework\Mail\Mail\MailerMail;
+use MetaFramework\Mailer\Contracts\MailerInterface;
+use MetaFramework\Mailer\Mail\MailerMail;
 use MetaFramework\Support\Traits\Responses;
 use Throwable;
 
@@ -88,11 +88,11 @@ abstract class MailerAbstract implements MailerInterface
 
     public function successMessage(): string
     {
-        return __(config('metaframework.mailer.translations.success', 'mailer.success'));
+        return __(config('mfw.mailer.translations.success', 'mailer.success'));
     }
 
     public function failureMessage(): string
     {
-        return __(config('metaframework.mailer.translations.failure', 'mailer.failure'));
+        return __(config('mfw.mailer.translations.failure', 'mailer.failure'));
     }
 }

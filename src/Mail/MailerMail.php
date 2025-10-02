@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace MetaFramework\Mail\Mail;
+namespace MetaFramework\Mailer\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use MetaFramework\Mail\Contracts\MailerInterface;
+use MetaFramework\Mailer\Contracts\MailerInterface;
 
 class MailerMail extends Mailable
 {
