@@ -11,7 +11,7 @@
     "illuminate/console": "^12.0",
     "illuminate/filesystem": "^12.0",
     "illuminate/translation": "^12.0",
-    "aboleon/metaframework-support": "^0.1"
+    "aboleon/metaframework-support": "0.*"
   },
   "autoload": {
     "psr-4": {
@@ -23,6 +23,9 @@
       "providers": [
         "MetaFramework\\Mailer\\MailerServiceProvider"
       ]
+    },
+    "branch-alias": {
+      "dev-main": "0.1.x-dev"
     }
   },
   "minimum-stability": "dev",
