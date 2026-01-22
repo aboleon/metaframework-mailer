@@ -48,6 +48,14 @@ abstract class MailerAbstract implements MailerInterface
 
             return true;
         } catch (Throwable $throwable) {
+            if (method_exists($this, 'logToFile')) {
+                $this->logToFile($throwable);
+            }
+
+            if (method_exists($this, 'mailLog')) {
+                $this->mailLog($throwable);
+            }
+
             $this->responseException(
                 $throwable,
                 $this->failureMessage(),
