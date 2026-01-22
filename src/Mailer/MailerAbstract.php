@@ -57,7 +57,7 @@ abstract class MailerAbstract implements MailerInterface
         }
     }
 
-    public function from(): string|array
+    public function from(): string|array|Address
     {
         return new Address(
             (string) config('mail.from.address'),
