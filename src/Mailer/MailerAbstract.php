@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MetaFramework\Mailer\Mailer;
 
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\Mail;
 use MetaFramework\Mailer\Contracts\MailerInterface;
 use MetaFramework\Mailer\Mail\MailerMail;
@@ -58,10 +59,10 @@ abstract class MailerAbstract implements MailerInterface
 
     public function from(): string|array
     {
-        return [
-            'email' => config('mail.from.address'),
-            'name' => config('mail.from.name', config('app.name')),
-        ];
+        return new Address(
+            (string) config('mail.from.address'),
+            (string) config('mail.from.name', config('app.name')),
+        );
     }
 
     public function print(string $key): string
