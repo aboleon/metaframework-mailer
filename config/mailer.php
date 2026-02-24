@@ -19,6 +19,10 @@ return [
         'translation_key' => 'mfw.mailer.from_name',
         'strict_locale_translation' => true,
     ],
+    'text' => [
+        'footer_view' => null,
+        'footer_separator' => null,
+    ],
     'routes' => [
         'enabled' => false,
         'uri' => 'mail/{type}/{identifier}',

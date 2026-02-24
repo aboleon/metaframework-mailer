@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace MetaFramework\Mailer\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
 use MetaFramework\Mailer\Contracts\MailerInterface;
 
@@ -30,6 +30,14 @@ class MailerMail extends Mailable
                 ], $this->mailed->getViewData()),
             );
 
+        if (method_exists($this->mailed, 'textView')) {
+            $textView = $this->mailed->textView();
+
+            if (is_string($textView) && trim($textView) !== '') {
+                $sendable->text($textView);
+            }
+        }
+
         if (method_exists($this->mailed, 'replyTo')) {
             $replyTo = $this->mailed->replyTo();
 
@@ -44,7 +52,7 @@ class MailerMail extends Mailable
 
         if (method_exists($this->mailed, 'attachments')) {
             foreach ($this->mailed->attachments() as $attachment) {
-                if (! is_array($attachment)) {
+                if (!is_array($attachment)) {
                     continue;
                 }
 
@@ -55,6 +63,7 @@ class MailerMail extends Mailable
 
                 if (($attachment['type'] ?? null) === 'binary') {
                     $sendable->attachData($attachment['file'], $attachment['as']);
+
                     continue;
                 }
 

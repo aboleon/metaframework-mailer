@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MetaFramework\Mailer\Contracts;
 
+use Illuminate\Mail\Mailables\Address;
+
 interface MailerInterface
 {
     public function setModel(object $model): self;
@@ -12,7 +14,7 @@ interface MailerInterface
 
     public function send(): bool;
 
-    public function email(): string|array;
+    public function email(): string|array|Address;
 
     public function subject(): string;
 
