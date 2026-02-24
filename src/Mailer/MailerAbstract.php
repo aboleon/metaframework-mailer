@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MetaFramework\Mailer\Mailer;
 
 use Illuminate\Mail\Mailables\Address;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use MetaFramework\Mailer\Contracts\MailerInterface;
 use MetaFramework\Mailer\Mail\MailerMail;
@@ -18,8 +19,11 @@ abstract class MailerAbstract implements MailerInterface
     use Responses;
 
     protected ?object $model = null;
+
     protected ?string $identifier = null;
+
     private array $view_data = [];
+
     private array $request_data = [];
 
     public function setModel(object $model): self
@@ -68,9 +72,60 @@ abstract class MailerAbstract implements MailerInterface
     public function from(): string|array|Address
     {
         return new Address(
-            (string) config('mail.from.address'),
-            (string) config('mail.from.name', config('app.name')),
+            $this->resolveMailerFromAddress(),
+            $this->resolveMailerFromName(),
         );
+    }
+
+    protected function resolveMailerFromAddress(): string
+    {
+        $configured = trim((string) config('mfw.mailer.from.address', ''));
+
+        if ($configured !== '') {
+            return $configured;
+        }
+
+        return (string) config('mail.from.address');
+    }
+
+    protected function resolveMailerFromName(): string
+    {
+        $translationKey = trim((string) config('mfw.mailer.from.translation_key', ''));
+        $strictLocaleTranslation = (bool) config('mfw.mailer.from.strict_locale_translation', true);
+        $locale = trim((string) ($this->locale ?? app()->getLocale()));
+
+        if ($translationKey !== '') {
+            $hasForLocale = $locale !== '' ? Lang::hasForLocale($translationKey, $locale) : Lang::has($translationKey);
+
+            if ($hasForLocale) {
+                $translated = $locale !== '' ? __($translationKey, [], $locale) : __($translationKey);
+                $translated = trim((string) $translated);
+
+                if ($translated !== '' && $translated !== $translationKey) {
+                    return $translated;
+                }
+            } elseif (!$strictLocaleTranslation) {
+                $translated = trim((string) __($translationKey));
+
+                if ($translated !== '' && $translated !== $translationKey) {
+                    return $translated;
+                }
+            }
+        }
+
+        $configured = trim((string) config('mfw.mailer.from.name', ''));
+
+        if ($configured !== '') {
+            return $configured;
+        }
+
+        $mailFromName = trim((string) config('mail.from.name', ''));
+
+        if ($mailFromName !== '') {
+            return $mailFromName;
+        }
+
+        return (string) config('app.name');
     }
 
     public function print(string $key): string

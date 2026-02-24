@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'namespaces' => [
         'default' => 'App\\Mailer',
@@ -10,6 +12,12 @@ return [
     'translations' => [
         'success' => 'mailer.success',
         'failure' => 'mailer.failure',
+    ],
+    'from' => [
+        'address' => null,
+        'name' => null,
+        'translation_key' => 'mfw.mailer.from_name',
+        'strict_locale_translation' => true,
     ],
     'routes' => [
         'enabled' => false,
