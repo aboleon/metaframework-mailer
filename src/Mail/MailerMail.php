@@ -50,6 +50,18 @@ class MailerMail extends Mailable
             }
         }
 
+        if (method_exists($this->mailed, 'bcc')) {
+            $bcc = $this->mailed->bcc();
+
+            if ($bcc instanceof Address) {
+                $sendable->bcc($bcc->address, $bcc->name);
+            } elseif (is_array($bcc) && $bcc !== []) {
+                $sendable->bcc($bcc);
+            } elseif (is_string($bcc) && trim($bcc) !== '') {
+                $sendable->bcc($bcc);
+            }
+        }
+
         if (method_exists($this->mailed, 'attachments')) {
             foreach ($this->mailed->attachments() as $attachment) {
                 if (!is_array($attachment)) {
