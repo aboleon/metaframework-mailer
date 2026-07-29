@@ -155,11 +155,11 @@ abstract class MailerAbstract implements MailerInterface
 
     public function successMessage(): string
     {
-        return __(config('mfw.mailer.translations.success', 'mailer.success'));
+        return __(config('mfw.mailer.translations.success', 'mfw-mailer::mailer.success'));
     }
 
     public function failureMessage(): string
     {
-        return __(config('mfw.mailer.translations.failure', 'mailer.failure'));
+        return __(config('mfw.mailer.translations.failure', 'mfw-mailer::mailer.failure'));
     }
 }

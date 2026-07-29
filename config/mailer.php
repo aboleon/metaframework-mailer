@@ -10,13 +10,13 @@ return [
         'prefix' => 'mails.mailer',
     ],
     'translations' => [
-        'success' => 'mailer.success',
-        'failure' => 'mailer.failure',
+        'success' => 'mfw-mailer::mailer.success',
+        'failure' => 'mfw-mailer::mailer.failure',
     ],
     'from' => [
         'address' => null,
         'name' => null,
-        'translation_key' => 'mfw.mailer.from_name',
+        'translation_key' => 'mfw::mfw.mailer.from_name',
         'strict_locale_translation' => true,
     ],
     'text' => [
